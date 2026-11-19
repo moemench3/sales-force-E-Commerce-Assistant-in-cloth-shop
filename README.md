@@ -32,3 +32,30 @@ An intelligent e-commerce assistant built on **Salesforce** using **Agentforce A
 1. Clone the repository:
    ```bash
    git clone [https://github.com/moemench3/sales-force-E-Commerce-Assistant-in-cloth-shop.git](https://github.com/moemench3/sales-force-E-Commerce-Assistant-in-cloth-shop.git)
+
+---
+
+## Additional Project: Recipe Optimizer & AI Recipe Copilot (Salesforce)
+
+An interactive Salesforce application designed to manage products, formulate and optimize ingredient recipes, track ingredient market prices and price projections, and generate tailored product recipes using **Agentforce Copilot**.
+
+### Key Features
+* **Product Catalog & Recipe Builder (`recipeOptimizer`, `ingrediant`, `ingredientCard`):** Create products, add or create ingredients, adjust weights/percentages, and manage recipe items.
+* **Recipe Optimization & Cost Impact (`IngredientOptimizationController.cls`, `RecipeOptimizerController.cls`):** Optimize ingredient distribution and compare current cost against AI-optimized results[cite: 9].
+* **Market Intelligence & Price Projections (`CommodityMarketScoutController.cls`, `RecipePriceProjectionAction.cls`):** Scout market pricing, inspect price history/trends, and project recipe costs[cite: 9].
+* **Agentforce Copilot & Loading UX (`ingredientAiService.js`, `mockIngredientData.js`, `aiAgentSpinner`):** Generate custom recipes and display AI processing states smoothly[cite: 10].
+
+### Components & Classes Included
+* **Apex Controllers & Actions (`force-app/main/default/classes/`):**
+  * `CommodityMarketScoutController.cls`[cite: 9]
+  * `IngredientOptimizationController.cls`[cite: 9]
+  * `RecipeOptimizerController.cls`[cite: 9]
+  * `RecipePriceProjectionAction.cls`[cite: 9]
+* **LWC Modules (`force-app/main/default/lwc/`):**
+  * `aiAgentSpinner` (`aiAgentSpinner.html`, `aiAgentSpinner.js`, `aiAgentSpinner.css`, `aiAgentSpinner.js-meta.xml`)[cite: 10]
+  * `ingrediant` (`ingrediant.html`, `ingrediant.js`, `ingrediant.css`, `ingrediant.js-meta.xml`, plus `__tests__`)[cite: 10]
+  * `ingredientCard` (`ingredientCard.html`, `ingredientCard.js`, `ingredientCard.css`, `ingredientCard.js-meta.xml`, plus `__tests__`)[cite: 10]
+  * `recipeOptimizer` (`recipeOptimizer.html`, `recipeOptimizer.js`, `recipeOptimizer.css`, `recipeOptimizer.js-meta.xml`, `ingredientAiService.js`, `mockIngredientData.js`)[cite: 10]
+
+### Additional Frontend & Build Files Included
+* **HTML, CSS, JavaScript & Webpack:** Frontend web files and bundling configuration included within the repository alongside the Salesforce metadata.

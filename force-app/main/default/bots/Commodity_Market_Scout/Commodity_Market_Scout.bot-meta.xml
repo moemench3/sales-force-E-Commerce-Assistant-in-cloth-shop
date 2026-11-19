@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bot xmlns="http://soap.sforce.com/2006/04/metadata">
+    <agentDSLEnabled>true</agentDSLEnabled>
+    <agentType>EinsteinServiceAgent</agentType>
+    <botMlDomain>
+        <label>Commodity Market Scout</label>
+        <name>Commodity_Market_Scout</name>
+    </botMlDomain>
+    <botSource>None</botSource>
+    <botUser>private_label_advisor@00dg500000ayy4j628507891.ext</botUser>
+    <description>Searches the web for a specified commodity and returns a concise current-market summary with sources.</description>
+    <label>Commodity Market Scout</label>
+    <logPrivateConversationData>false</logPrivateConversationData>
+    <richContentEnabled>true</richContentEnabled>
+    <sessionTimeout>0</sessionTimeout>
+    <type>ExternalCopilot</type>
+</Bot>

@@ -1,0 +1,286 @@
+<template>
+    <div class="split-shell">
+        <!-- اليسار: Product Catalog -->
+        <div class="catalog-sidebar">
+            <div class="eyebrow">Products</div>
+            <h1 class="page-title">Product catalog</h1>
+
+            <div class="catalog-toolbar">
+                <lightning-input type="search" placeholder="Search products..." variant="label-hidden"
+                    value={searchTerm} onchange={handleSearchChange}>
+                </lightning-input>
+                <lightning-button label="+ New product" variant="brand" class="btn-full-width btn-dark"
+                    onclick={handleNewProduct}>
+                </lightning-button>
+            </div>
+
+            <div class="product-list">
+                <template for:each={filteredProducts} for:item="prod">
+                    <div key={prod.id} class={prod.cardClass} data-id={prod.id} onclick={handleProductSelect}>
+                        <div class="product-card-top">
+                            <span class="product-name">{prod.name}</span>
+                            <span class={prod.badgeClass}>{prod.category}</span>
+                        </div>
+                        <div class="product-details">{prod.details}</div>
+                        <div class="product-price">{prod.price}</div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- اليمين: Main Workspace -->
+        <div class="formulation-main">
+            <div class="breadcrumbs">PRODUCTS / CHOCOLATE SPREAD / EDITING RECIPE</div>
+            <h1 class="main-title">Chocolate Spread — formulation</h1>
+
+            <!-- الشريط الأسود الإحصائي (Metric Ribbon) -->
+            <div class="metric-ribbon">
+                <div class="metric-col">
+                    <span class="metric-label">TOTAL WEIGHT</span>
+                    <span class="metric-value">{totalWeight} g</span>
+                </div>
+                <div class="metric-col">
+                    <span class="metric-label">ESTIMATED COST</span>
+                    <span class="metric-value">{estimatedCost}</span>
+                </div>
+                <div class="metric-col">
+                    <span class="metric-label">TARGET MARGIN</span>
+                    <span class="metric-value">0.35%</span>
+                </div>
+                <div class="metric-col">
+                    <span class="metric-label">PRICE IF OPTIMIZED</span>
+                    <span class="metric-value">—</span>
+                </div>
+            </div>
+
+            <!-- شبكة العمل السفلية -->
+            <div class="workspace-grid">
+                <!-- قسم التركيب Composition & Price Impact -->
+                <div class="left-workspace">
+                    <div class="panel">
+                        <div class="composition-header">
+                            <div>
+                                <h2 class="section-title">Composition</h2>
+                                <span class="subtext">{ingredientsSummaryText}</span>
+                            </div>
+                            <div class="action-buttons">
+                                <lightning-button label="Refresh market" variant="neutral"
+                                    onclick={handleRefreshMarket}>
+                                </lightning-button>
+                                <lightning-button label="Optimize recipe" variant="brand" class="btn-dark-inline"
+                                    onclick={handleOptimizeRecipe}>
+                                </lightning-button>
+                            </div>
+                        </div>
+
+                        <!-- شريط توزيع ألوان النسب -->
+                        <div class="distribution-bar">
+                            <template for:each={formattedIngredients} for:item="ing">
+                                <div key={ing.id} class={ing.cssClass} style={ing.segmentStyle} title={ing.name}>
+                                    {ing.barPercentage}
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- مفتاح الألوان (Legend) -->
+                        <div class="mix-legend">
+                            <template for:each={formattedIngredients} for:item="ing">
+                                <span key={ing.id} class="legend-item">
+                                    <span class="legend-swatch" style={ing.legendSwatchStyle}></span>
+                                    {ing.name}
+                                </span>
+                            </template>
+                        </div>
+
+                        <!-- أسطر المكونات -->
+                        <div class="ingredient-rows">
+                            <template for:each={formattedIngredients} for:item="ing">
+                                <div key={ing.id} class="ingredient-row">
+                                    <span class="swatch" style={ing.legendSwatchStyle}></span>
+                                    <span class="ing-name">{ing.name}</span>
+                                    <div class="weight-box">
+                                        <input type="number" value={ing.weight} data-id={ing.id}
+                                            onchange={handleWeightChange} class="weight-input" />
+                                        <span class="unit">g</span>
+                                    </div>
+                                    <span class="percentage">{ing.percentageFormatted}</span>
+                                    <span class="dash-spacer">—</span>
+                                    <lightning-button-icon icon-name="utility:delete" variant="bare"
+                                        alternative-text="Delete" data-id={ing.id} onclick={handleDeleteRow}>
+                                    </lightning-button-icon>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- شريط إضافة مكون جديد المعدل -->
+                        <div class="add-ingredient-bar">
+                            <div class="ing-dropdown-container">
+                                <select class="slds-select ing-dropdown" onchange={handleIngredientSelectChange}>
+                                    <option value="" disabled selected>Select ingredient to add...</option>
+                                    <option value="ADD_NEW">+ Add new ingredient...</option>
+                                    <template for:each={availableIngredients} for:item="ing">
+                                        <option key={ing.id} value={ing.id}>{ing.name}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <lightning-button label="+ Add row" variant="neutral" onclick={handleAddRow}>
+                            </lightning-button>
+                        </div>
+                    </div>
+
+                    <!-- Price Impact Card -->
+                    <div class="price-impact-section">
+                        <h2 class="section-title margin-top">Price impact</h2>
+                        <div class="impact-grid">
+                            <div class="impact-card">
+                                <span class="impact-label">CURRENT DISTRIBUTION</span>
+                                <div class="impact-value">{currentDistributionPrice}</div>
+                            </div>
+                            <div class="impact-card impact-green">
+                                <span class="impact-label">IF AI WEIGHTS APPLIED</span>
+                                <div class="impact-value">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- قسم الرؤى على اليمين Ingredient Insights -->
+                <div class="right-insights">
+                    <h2 class="section-title">Ingredient insights</h2>
+                    <span class="subtext block-margin">Linked to this recipe.</span>
+
+                    <div class="insight-cards">
+                        <template for:each={ingredientInsights} for:item="ins">
+                            <div key={ins.id} class="insight-card">
+                                <div class="insight-header">
+                                    <span class="insight-title">{ins.name}</span>
+                                    <span class={ins.badgeClass}>{ins.badgeIcon} {ins.change}</span>
+                                </div>
+                                <div class="insight-price">{ins.price}</div>
+                                <p class="insight-desc">{ins.note}</p>
+                                <div class="insight-footer">
+                                    <span class="redacted-link">URL_REDACTED</span>
+                                    <span class="history-link">History</span>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- أزرار الإجراءات الإضافية -->
+                        <div class="insight-actions-bar">
+                            <lightning-button label="Clear form" variant="neutral" onclick={handleClearForm}
+                                class="btn-clear">
+                            </lightning-button>
+                            <lightning-button label="Save recipe" variant="brand" onclick={handleSaveRecipe}
+                                class="btn-save-dark">
+                            </lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة منتج جديد (Add New Product Modal) -->
+    <template if:true={isNewProductModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal Header -->
+                <header class="slds-modal__header">
+                    <lightning-button-icon icon-name="utility:close" alternative-text="Close" variant="bare-reverse"
+                        class="slds-modal__close" onclick={closeNewProductModal}>
+                    </lightning-button-icon>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">Create new product</h2>
+                </header>
+
+                <!-- Modal Body -->
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-input label="Product Name" data-field="name" value={newProductName}
+                        onchange={handleNewProductFieldChange} required>
+                    </lightning-input>
+
+                    <lightning-combobox label="Category" value={newProductCategory} options={categoryOptions}
+                        data-field="category" onchange={handleNewProductFieldChange} class="slds-m-top_small">
+                    </lightning-combobox>
+
+                    <div class="slds-grid slds-gutters slds-m-top_small">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input type="number" label="Target Weight (g)" data-field="weight"
+                                value={newProductWeight} onchange={handleNewProductFieldChange}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input type="number" label="Target Margin (%)" data-field="targetMargin"
+                                value={newProductTargetMargin} onchange={handleNewProductFieldChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" variant="neutral" onclick={closeNewProductModal}
+                        class="slds-m-right_x-small">
+                    </lightning-button>
+                    <lightning-button label="Save product" variant="brand" onclick={handleSaveNewProduct}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- نافذة إضافة مكون جديد (Add New Ingredient Modal) -->
+    <template if:true={isNewIngredientModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal Header -->
+                <header class="slds-modal__header">
+                    <lightning-button-icon icon-name="utility:close" alternative-text="Close" variant="bare-reverse"
+                        class="slds-modal__close" onclick={closeNewIngredientModal}>
+                    </lightning-button-icon>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">Add new ingredient</h2>
+                </header>
+
+                <!-- Modal Body -->
+                <div class="slds-modal__content slds-p-around_medium">
+                    <!-- Ingredient Name -->
+                    <lightning-input label="Ingredient Name" data-field="name" value={newIngName}
+                        onchange={handleNewIngredientFieldChange} required>
+                    </lightning-input>
+
+                    <div class="slds-grid slds-gutters slds-m-top_small">
+                        <!-- Unit -->
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox label="Unit" value={newIngUnit} options={unitOptions} data-field="unit"
+                                onchange={handleNewIngredientFieldChange}>
+                            </lightning-combobox>
+                        </div>
+
+                        <!-- Default Cost (per ton) -->
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input type="number" label="Default Cost (per ton)" data-field="costPerTon"
+                                value={newIngCostPerTon} onchange={handleNewIngredientFieldChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+
+                    <!-- Flavor Profile (optional) -->
+                    <lightning-input label="Flavor Profile (optional)" data-field="flavorProfile"
+                        value={newIngFlavorProfile} onchange={handleNewIngredientFieldChange} class="slds-m-top_small">
+                    </lightning-input>
+                </div>
+
+                <!-- Modal Footer -->
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" variant="neutral" onclick={closeNewIngredientModal}
+                        class="slds-m-right_x-small">
+                    </lightning-button>
+                    <lightning-button label="Create & add to recipe" variant="brand"
+                        onclick={handleCreateAndAddIngredient}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

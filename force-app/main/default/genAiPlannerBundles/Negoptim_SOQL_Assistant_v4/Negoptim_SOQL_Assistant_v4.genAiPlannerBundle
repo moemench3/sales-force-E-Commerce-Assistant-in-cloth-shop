@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>SOQL Builder: NL → GetSchema → safe SELECT → optional RunSoql with confirmation.</description>
+    <genAiPlugins>
+        <genAiPluginName>agent_router_16jg5000000qZUk</genAiPluginName>
+    </genAiPlugins>
+    <genAiPlugins>
+        <genAiPluginName>ambiguous_question_16jg5000000qZUk</genAiPluginName>
+    </genAiPlugins>
+    <genAiPlugins>
+        <genAiPluginName>soql_builder_16jg5000000qZUk</genAiPluginName>
+    </genAiPlugins>
+    <masterLabel>Negoptim SOQL Assistant</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>

@@ -1,0 +1,105 @@
+:host {
+    display: inline-flex;
+}
+
+.ai-agent-spinner {
+    align-items: center;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.ai-stars {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.35rem;
+    justify-content: center;
+}
+
+.ai-star {
+    animation: ai-sparkle-pulse 1.2s ease-in-out infinite;
+    display: block;
+    flex: 0 0 auto;
+    transform-origin: center center;
+}
+
+.star-1 {
+    animation-delay: 0s;
+    fill: #9333ea;
+    height: 0.85rem;
+    width: 0.85rem;
+}
+
+.star-2 {
+    animation-delay: 0.18s;
+    fill: #4f46e5;
+    height: 1.15rem;
+    width: 1.15rem;
+}
+
+.star-3 {
+    animation-delay: 0.36s;
+    fill: #2563eb;
+    height: 1.55rem;
+    width: 1.55rem;
+}
+
+.ai-spinner-label {
+    color: #5c574e;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: center;
+}
+
+.size-small .star-1 {
+    height: 0.65rem;
+    width: 0.65rem;
+}
+
+.size-small .star-2 {
+    height: 0.9rem;
+    width: 0.9rem;
+}
+
+.size-small .star-3 {
+    height: 1.15rem;
+    width: 1.15rem;
+}
+
+.size-small .ai-spinner-label {
+    font-size: 0.72rem;
+}
+
+.size-large .star-1 {
+    height: 1rem;
+    width: 1rem;
+}
+
+.size-large .star-2 {
+    height: 1.35rem;
+    width: 1.35rem;
+}
+
+.size-large .star-3 {
+    height: 1.85rem;
+    width: 1.85rem;
+}
+
+.size-large .ai-spinner-label {
+    font-size: 0.88rem;
+}
+
+@keyframes ai-sparkle-pulse {
+    0%,
+    70%,
+    100% {
+        opacity: 0.35;
+        transform: scale(0.82);
+    }
+
+    35% {
+        opacity: 1;
+        transform: scale(1.08);
+    }
+}

@@ -1,0 +1,24 @@
+<template>
+    <div class={spinnerClass} role="status" aria-live="polite" aria-label={alternativeText}>
+        <div class="ai-stars" aria-hidden="true">
+            <svg class="ai-star star-1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12 1.2 13.4 8.1 20.3 9.5 13.4 10.9 12 17.8 10.6 10.9 3.7 9.5 10.6 8.1 12 1.2Z"
+                ></path>
+            </svg>
+            <svg class="ai-star star-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12 1.2 13.4 8.1 20.3 9.5 13.4 10.9 12 17.8 10.6 10.9 3.7 9.5 10.6 8.1 12 1.2Z"
+                ></path>
+            </svg>
+            <svg class="ai-star star-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12 1.2 13.4 8.1 20.3 9.5 13.4 10.9 12 17.8 10.6 10.9 3.7 9.5 10.6 8.1 12 1.2Z"
+                ></path>
+            </svg>
+        </div>
+        <template if:true={hasLabel}>
+            <span class="ai-spinner-label">{label}</span>
+        </template>
+    </div>
+</template>

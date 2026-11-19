@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bot xmlns="http://soap.sforce.com/2006/04/metadata">
+    <agentDSLEnabled>true</agentDSLEnabled>
+    <agentType>EinsteinServiceAgent</agentType>
+    <botMlDomain>
+        <label>Recipe Price Projection AI</label>
+        <name>Recipe_Price_Projection_AI</name>
+    </botMlDomain>
+    <botSource>None</botSource>
+    <botUser>private_label_advisor@00dg500000ayy4j628507891.ext</botUser>
+    <description>Calculates expected product price from current vs AI ingredient weights at latest unit prices.</description>
+    <label>Recipe Price Projection AI</label>
+    <logPrivateConversationData>false</logPrivateConversationData>
+    <richContentEnabled>true</richContentEnabled>
+    <sessionTimeout>0</sessionTimeout>
+    <type>ExternalCopilot</type>
+</Bot>

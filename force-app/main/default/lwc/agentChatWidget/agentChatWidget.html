@@ -1,0 +1,541 @@
+<template>
+    <div class="chat-container slds-p-around_small">
+
+        <!-- Header Bar -->
+        <div
+            class="cart-header-bar slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-around_x-small slds-m-bottom_small">
+            <div class="chat-title">
+                <span class="slds-badge slds-theme_success">🛍️ E-Commerce Assistant</span>
+            </div>
+            <div class="header-buttons">
+                <button class="slds-button reset-btn-badge slds-m-right_x-small" onclick={handleResetChat} type="button"
+                    title="Start New Conversation">
+                    🔄 New Chat
+                </button>
+                <button class="slds-button orders-btn-badge slds-m-right_x-small" onclick={openOrders} type="button"
+                    title="View Placed Orders">
+                    📦 My Orders <span class="orders-count-pill">{ordersCount}</span>
+                </button>
+                <button class="slds-button size-calc-btn-badge slds-m-right_x-small" onclick={openSizeCalculator}
+                    type="button" title="Open Size Calculator">
+                    📐 Size Calculator
+                </button>
+                <button class="slds-button wishlist-btn-badge slds-m-right_x-small" onclick={openWishlist}
+                    type="button">
+                    ❤️ Liked Products <span class="wishlist-count-pill">{wishlistItemsCount}</span>
+                </button>
+                <button class="slds-button slds-button_brand cart-btn-badge" onclick={openCart} type="button">
+                    🛒 Cart <span class="cart-count-pill">{cartItemsCount}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Single Messages Container -->
+        <div class="chat-messages slds-m-bottom_medium">
+
+
+            <!-- Render Messages & Products -->
+            <template for:each={messages} for:item="msg">
+                <div key={msg.id} class={msg.cssClass}>
+                    <div class="message-bubble">
+                        <lightning-formatted-rich-text value={msg.text}></lightning-formatted-rich-text>
+
+                        <template lwc:if={msg.showOptions}>
+                            <div class="option-buttons-container slds-m-top_small">
+                                <button class="btn-option btn-option-yes" data-action="yes" onclick={handleQuickOption}
+                                    type="button">
+                                    نعم، أريد تسجيل طلب
+                                </button>
+                                <button class="btn-option btn-option-no" data-action="no" onclick={handleQuickOption}
+                                    type="button">
+                                    لا، شكراً
+                                </button>
+                            </div>
+                        </template>
+
+                        <!-- Products List -->
+                        <template lwc:if={msg.products}>
+                            <!-- كود القائمة المنسدلة للفرز -->
+                            <div class="slds-grid slds-grid_align-end slds-m-bottom_x-small sort-container">
+                                <lightning-combobox name="sortOption" label="Sort by" variant="label-inline"
+                                    value={msg.selectedSort} options={sortOptions} data-msg-id={msg.id}
+                                    onchange={handleSortChange}>
+                                </lightning-combobox>
+                            </div>
+
+                            <!-- شبكة المنتجات الأصلية تبعك -->
+                            <div class="slds-grid slds-wrap slds-gutters slds-m-top_small">
+                                <template for:each={msg.products} for:item="prod">
+                                    <div key={prod.id}
+                                        class="slds-col slds-size_1-of-1 slds-size_1-of-2 slds-medium-size_1-of-3 slds-large-size_1-of-4 slds-m-bottom_small">
+                                        <div class="product-card slds-card slds-p-around_x-small slds-text-align_center"
+                                            onclick={openModal} data-id={prod.id}>
+
+                                            <template lwc:if={prod.hasStock}>
+                                                <div class="stock-badge-circle" title="Stock Available">
+                                                    {prod.stockCount}
+                                                </div>
+                                            </template>
+
+                                            <!-- Prevent event bubbling for Like button -->
+                                            <button class={prod.likeClass} onclick={handleToggleLike} data-id={prod.id}
+                                                title="Favorite" type="button">
+                                                <svg class="heart-icon" viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                </svg>
+                                            </button>
+
+                                            <img src={prod.imageUrl} alt={prod.name} class="product-thumb"
+                                                loading="lazy" onerror={handleImageError} />
+
+                                            <template lwc:if={prod.isOutOfStock}>
+                                                <div class="out-of-stock-banner">OUT OF STOCK</div>
+                                            </template>
+
+                                            <p class="product-title slds-truncate slds-m-top_x-small"><b>{prod.name}</b>
+                                            </p>
+
+                                            <!-- كود السعر مع زر النسخ -->
+                                            <div
+                                                class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-top_x-small">
+                                                <p class="product-price">${prod.price}</p>
+                                                <button
+                                                    class="slds-button slds-button_icon slds-button_icon-border-filled copy-btn"
+                                                    data-code={prod.code} onclick={handleCopyProductCode}
+                                                    title="Copy Product Code" type="button">
+                                                    <lightning-icon icon-name="utility:copy"
+                                                        size="xx-small"></lightning-icon>
+                                                </button>
+                                            </div>
+                                            <p class="product-rating slds-m-top_x-small"
+                                                style="color:#f59e0b; font-weight:bold;">
+                                                ⭐ <b>{prod.rating}</b>/5
+                                            </p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+            <!-- Sparkle loader inside chat -->
+            <template lwc:if={isLoading}>
+                <div class="agent-message-container">
+                    <div class="message-bubble sparkle-loader" aria-label="Loading">
+                        <svg class="sparkle" viewBox="0 0 24 24">
+                            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z" />
+                        </svg>
+                        <svg class="sparkle" viewBox="0 0 24 24">
+                            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z" />
+                        </svg>
+                        <svg class="sparkle" viewBox="0 0 24 24">
+                            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z" />
+                        </svg>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- AI Suggested Prompts Chips -->
+        <template lwc:if={hasSuggestedPrompts}>
+            <div class="suggested-prompts-container slds-m-bottom_x-small slds-scrollable_x">
+                <div class="slds-text-title_caps slds-m-bottom_xx-small slds-text-color_weak"
+                    style="font-size: 0.7rem; font-weight: 700;">
+                    💡 Suggested Actions
+                </div>
+                <div class="prompts-pill-group slds-grid slds-wrap">
+                    <template for:each={suggestedPrompts} for:item="prompt">
+                        <button key={prompt.id}
+                            class="slds-button slds-button_outline-brand prompt-chip-btn slds-m-right_xx-small slds-m-bottom_xx-small"
+                            data-prompt={prompt.value} onclick={handlePromptChipClick} disabled={isLoading}
+                            type="button">
+                            <span>{prompt.label}</span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <!-- Input Bar -->
+        <div class="slds-grid slds-gutters slds-grid_vertical-align-center">
+            <div class="slds-col slds-size_10-of-12">
+                <lightning-input type="text" value={userInput} onchange={handleInputChange} onkeyup={handleKeyUp}
+                    placeholder="Write your question here..." disabled={isLoading}>
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-button label="send" variant="brand" onclick={handleSend}
+                    disabled={isLoading}></lightning-button>
+            </div>
+        </div>
+
+        <!-- My Orders List Modal -->
+        <template lwc:if={isOrdersOpen}>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-orders-heading"
+                class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container custom-modal-container">
+                    <header class="slds-modal__header">
+                        <lightning-button-icon icon-name="utility:close" variant="bare-inverse"
+                            class="slds-modal__close" title="Close" onclick={closeOrders}></lightning-button-icon>
+                        <h2 id="modal-orders-heading" class="slds-modal__title slds-hyphenate">📦 My Orders List
+                            ({ordersCount})</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large">
+                        <template lwc:if={hasOrders}>
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th scope="col">Order ID</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Items Summary</th>
+                                        <th scope="col">Total Price</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={userOrders} for:item="ord">
+                                        <tr key={ord.id}>
+                                            <td><b style="color:#2563eb;">{ord.orderNumber}</b></td>
+                                            <td>{ord.orderDate}</td>
+                                            <td>
+                                                <ul class="slds-list_dotted">
+                                                    <template for:each={ord.items} for:item="item">
+                                                        <li key={item.id}>{item.name} (x{item.quantity}) - {item.size}
+                                                        </li>
+                                                    </template>
+                                                </ul>
+                                            </td>
+                                            <td><b>{ord.formattedTotal}</b></td>
+                                            <td>
+                                                <span class="slds-badge slds-theme_success">{ord.status}</span>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </template>
+
+                        <template lwc:else>
+                            <div class="empty-state-container slds-p-around_large slds-text-align_center">
+                                <div class="empty-icon-wrapper slds-m-bottom_small">
+                                    <span class="animated-empty-icon">📦</span>
+                                </div>
+                                <h3 class="slds-text-heading_small slds-m-bottom_x-small">No orders placed yet</h3>
+                                <p class="empty-subtitle">When you checkout items from your cart, your order details and
+                                    Order ID will appear here.</p>
+                            </div>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Close" onclick={closeOrders}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <!-- Product Detail & Customer Rating Modal -->
+        <template lwc:if={isModalOpen}>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-prod-heading"
+                class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container custom-modal-container">
+                    <header class="slds-modal__header">
+                        <lightning-button-icon icon-name="utility:close" variant="bare-inverse"
+                            class="slds-modal__close" title="Close" onclick={closeModal}></lightning-button-icon>
+                        <h2 id="modal-prod-heading" class="slds-modal__title slds-hyphenate">{selectedProduct.name}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large custom-modal-body">
+                        <div class="slds-grid slds-wrap slds-gutters slds-grid_vertical-align-center">
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-text-align_center">
+                                <img src={selectedProduct.imageUrl} alt={selectedProduct.name}
+                                    class="modal-product-image" onerror={handleImageError} />
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                <p class="desc-text slds-m-bottom_small">{selectedProduct.description}</p>
+                                <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_small">
+                                    <p class="code-text slds-m-right_x-small">Product Code:
+                                        <b>{selectedProduct.code}</b>
+                                    </p>
+                                    <lightning-button-icon icon-name="utility:copy" variant="border-filled" size="small"
+                                        data-code={selectedProduct.code} onclick={handleCopyProductCode}
+                                        alternative-text="Copy Code" title="Copy Code">
+                                    </lightning-button-icon>
+                                </div>
+                                <p class="modal-price-tag slds-m-bottom_small">Price:
+                                    <b>{selectedProductFormattedPrice}</b>
+                                </p>
+
+                                <!-- Customer Interactive Rating Component -->
+                                <div class="rating-box slds-m-bottom_small">
+                                    <label class="slds-form-element__label"
+                                        style="font-weight: bold; color: #1e293b;">Rate this product:</label>
+                                    <div class="star-rating-picker slds-m-top_xxx-small"
+                                        style="display: flex; gap: 8px; align-items: center;">
+                                        <span onclick={handleSetRating} data-value="1" style={star1Style}
+                                            class="star-hover-btn">★</span>
+                                        <span onclick={handleSetRating} data-value="2" style={star2Style}
+                                            class="star-hover-btn">★</span>
+                                        <span onclick={handleSetRating} data-value="3" style={star3Style}
+                                            class="star-hover-btn">★</span>
+                                        <span onclick={handleSetRating} data-value="4" style={star4Style}
+                                            class="star-hover-btn">★</span>
+                                        <span onclick={handleSetRating} data-value="5" style={star5Style}
+                                            class="star-hover-btn">★</span>
+                                    </div>
+                                    <p class="slds-text-body_small slds-m-top_xxx-small" style="color: #64748b;">
+                                        Selected Rating: <b style="color: #f59e0b;">{userRating} / 5</b>
+                                    </p>
+                                </div>
+
+                                <p class="slds-m-bottom_medium">Available Stock: <b>{selectedProduct.stockCount}</b></p>
+
+                                <div class="size-box slds-p-around_medium">
+                                    <div
+                                        class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_x-small">
+                                        <label class="slds-form-element__label slds-no-margin">Select Required
+                                            Size</label>
+                                        <button class="slds-button slds-button_link size-guide-btn"
+                                            onclick={openSizeCalculator} type="button">
+                                            📐 Help me choose my size
+                                        </button>
+                                    </div>
+                                    <lightning-combobox name="productSize" variant="label-hidden" value={selectedSize}
+                                        options={sizeOptions} onchange={handleSizeChange}>
+                                    </lightning-combobox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer slds-grid slds-grid_align-spread">
+                        <lightning-button label="Cancel" onclick={closeModal}></lightning-button>
+                        <lightning-button label="Add to Cart" variant="brand" icon-name="utility:cart"
+                            disabled={isModalProductOutOfStock} onclick={addToCart}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <!-- Size Calculator Modal -->
+        <template lwc:if={isSizeCalcOpen}>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-size-heading"
+                class="slds-modal slds-fade-in-open slds-modal_small">
+                <div class="slds-modal__container custom-modal-container">
+                    <header class="slds-modal__header">
+                        <lightning-button-icon icon-name="utility:close" variant="bare-inverse"
+                            class="slds-modal__close" title="Close"
+                            onclick={closeSizeCalculator}></lightning-button-icon>
+                        <h2 id="modal-size-heading" class="slds-modal__title slds-hyphenate">📐 Interactive Size
+                            Calculator</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large">
+                        <p class="slds-m-bottom_medium slds-text-color_weak">Enter your height and weight below to get
+                            an instant size recommendation for your fit.</p>
+
+                        <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="number" label="Height (cm)" value={userHeight}
+                                    placeholder="e.g. 175" onchange={handleHeightChange}>
+                                </lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="number" label="Weight (kg)" value={userWeight}
+                                    placeholder="e.g. 70" onchange={handleWeightChange}>
+                                </lightning-input>
+                            </div>
+                        </div>
+
+                        <template lwc:if={recommendedSize}>
+                            <div class="calc-result-box slds-p-around_medium slds-text-align_center slds-m-top_small">
+                                <p class="slds-text-heading_small">Recommended Size: <b
+                                        class="recommended-badge">{recommendedSize}</b></p>
+                            </div>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer slds-grid slds-grid_align-spread">
+                        <lightning-button label="Cancel" onclick={closeSizeCalculator}></lightning-button>
+                        <lightning-button label="Apply Size" variant="brand" disabled={isApplySizeDisabled}
+                            onclick={applyRecommendedSize}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <!-- Cart Modal -->
+        <template lwc:if={isCartOpen}>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-cart-heading"
+                class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container custom-modal-container">
+                    <header class="slds-modal__header">
+                        <lightning-button-icon icon-name="utility:close" variant="bare-inverse"
+                            class="slds-modal__close" title="Close" onclick={closeCart}></lightning-button-icon>
+                        <h2 id="modal-cart-heading" class="slds-modal__title slds-hyphenate">🛒 Your Shopping Cart
+                            ({cartItemsCount} items)</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large">
+                        <template lwc:if={hasCartItems}>
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th scope="col">Product</th>
+                                        <th scope="col">Size</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Qty</th>
+                                        <th scope="col">Total</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={formattedCartItems} for:item="item" for:index="idx">
+                                        <tr key={item.key}>
+                                            <td><b>{item.name}</b></td>
+                                            <td>{item.size}</td>
+                                            <td>{item.formattedPrice}</td>
+                                            <td>
+                                                <div class="slds-grid slds-grid_vertical-align-center qty-controls">
+                                                    <button class="qty-btn" data-index={idx}
+                                                        onclick={decreaseCartQuantity} type="button"
+                                                        title="Decrease">-</button>
+                                                    <span
+                                                        class="qty-number slds-m-left_x-small"><b>{item.quantity}</b></span>
+                                                </div>
+                                            </td>
+                                            <td><b>{item.formattedTotal}</b></td>
+                                            <td>
+                                                <lightning-button-icon icon-name="utility:delete"
+                                                    variant="border-filled" data-index={idx} onclick={removeFromCart}
+                                                    alternative-text="Remove"></lightning-button-icon>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+
+                            <!-- Currency & Exchange Rate Options -->
+                            <div class="slds-grid slds-gutters slds-m-top_medium slds-p-around_small size-box">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox name="currencySelect" label="Select Currency"
+                                        value={selectedCurrency} options={currencyOptions}
+                                        onchange={handleCurrencyChange}>
+                                    </lightning-combobox>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input type="number" label="Exchange Rate" value={exchangeRate} step="any"
+                                        onchange={handleRateChange}>
+                                    </lightning-input>
+                                </div>
+                            </div>
+
+                            <!-- Payment Method Selection -->
+                            <div class="slds-m-top_medium slds-p-around_small size-box">
+                                <lightning-combobox name="paymentMethod" label="Select Payment Method"
+                                    value={selectedPaymentMethod} options={paymentOptions}
+                                    onchange={handlePaymentChange}>
+                                </lightning-combobox>
+                            </div>
+
+                            <div class="slds-m-top_medium slds-text-align_right">
+                                <h3 class="slds-text-heading_medium">Grand Total: <b
+                                        style="color:#059669;">{cartGrandTotal}</b></h3>
+                            </div>
+                        </template>
+
+                        <template lwc:else>
+                            <div class="empty-state-container slds-p-around_large slds-text-align_center">
+                                <div class="empty-icon-wrapper slds-m-bottom_small">
+                                    <span class="animated-empty-icon">🛒</span>
+                                </div>
+                                <h3 class="slds-text-heading_small slds-m-bottom_x-small">Your cart is feeling a bit
+                                    light!</h3>
+                                <p class="empty-subtitle">Explore products from the chat and add your favorites here.
+                                </p>
+                            </div>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer slds-grid slds-grid_align-spread">
+                        <lightning-button label="Close" onclick={closeCart}></lightning-button>
+                        <lightning-button label="Checkout & Create Order" variant="success" icon-name="utility:check"
+                            disabled={isCartEmpty} onclick={handleCheckout}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <!-- Wishlist Modal -->
+        <template lwc:if={isWishlistOpen}>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-wishlist-heading"
+                class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container custom-modal-container">
+                    <header class="slds-modal__header">
+                        <lightning-button-icon icon-name="utility:close" variant="bare-inverse"
+                            class="slds-modal__close" title="Close" onclick={closeWishlist}></lightning-button-icon>
+                        <h2 id="modal-wishlist-heading" class="slds-modal__title slds-hyphenate">❤️ Liked Products
+                            ({wishlistItemsCount})</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large">
+                        <template lwc:if={hasWishlistItems}>
+                            <div class="slds-grid slds-wrap slds-gutters">
+                                <template for:each={wishlist} for:item="wProd">
+                                    <div key={wProd.id}
+                                        class="slds-col slds-size_1-of-2 slds-medium-size_1-of-3 slds-m-bottom_medium">
+                                        <div class="product-card slds-card slds-p-around_x-small slds-text-align_center"
+                                            onclick={openModal} data-id={wProd.id}>
+
+                                            <template lwc:if={wProd.hasStock}>
+                                                <div class="stock-badge-circle">{wProd.stockCount}</div>
+                                            </template>
+
+                                            <button class="like-btn is-liked" onclick={handleToggleLike}
+                                                data-id={wProd.id} title="Remove from Liked" type="button">
+                                                <svg class="heart-icon" viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                </svg>
+                                            </button>
+
+                                            <img src={wProd.imageUrl} alt={wProd.name} class="product-thumb"
+                                                loading="lazy" onerror={handleImageError} />
+
+                                            <template lwc:if={wProd.isOutOfStock}>
+                                                <div class="out-of-stock-banner">OUT OF STOCK</div>
+                                            </template>
+
+                                            <p class="product-title slds-truncate slds-m-top_x-small">
+                                                <b>{wProd.name}</b>
+                                            </p>
+                                            <p class="product-price">${wProd.price}</p>
+                                            <p class="product-rating slds-m-top_x-small"
+                                                style="color:#f59e0b; font-weight:bold;">
+                                                ⭐ <b>{wProd.rating}</b>/5
+                                            </p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template lwc:else>
+                            <div class="empty-state-container slds-p-around_large slds-text-align_center">
+                                <div class="empty-icon-wrapper slds-m-bottom_small">
+                                    <span class="animated-empty-icon">❤️</span>
+                                </div>
+                                <h3 class="slds-text-heading_small slds-m-bottom_x-small">No liked products yet</h3>
+                                <p class="empty-subtitle">Click the heart icon on any product card to save it here for
+                                    later.</p>
+                            </div>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Close" onclick={closeWishlist}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+    </div>
+</template>

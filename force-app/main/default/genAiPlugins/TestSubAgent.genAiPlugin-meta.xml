@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlugin xmlns="http://soap.sforce.com/2006/04/metadata">
+    <canEscalate>false</canEscalate>
+    <description>this subAgent is specialized in Web Search</description>
+    <developerName>TestSubAgent</developerName>
+    <genAiFunctions>
+        <functionName>EmployeeCopilot__WebSearch</functionName>
+    </genAiFunctions>
+    <language>en_US</language>
+    <localDeveloperName>TestSubAgent</localDeveloperName>
+    <masterLabel>TestSubAgent</masterLabel>
+    <pluginType>Topic</pluginType>
+    <scope>Your Job is only to search in the web about the commodities and the prices of them today, like price of gold, sugar, cacao today</scope>
+</GenAiPlugin>

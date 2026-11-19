@@ -1,0 +1,96 @@
+:host {
+    display: block;
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ingredient-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #111827;
+}
+
+.badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.badge-up {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.badge-down {
+    background-color: #f0fdf4;
+    color: #16a34a;
+}
+
+.price-tag {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #000000;
+    margin-top: 2px;
+}
+
+.comment-text {
+    font-size: 0.8rem;
+    color: #6b7280;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px stroke #f3f4f6;
+}
+
+.source-link {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.source-link:hover {
+    text-decoration: underline;
+}
+
+.history-btn {
+    background: transparent;
+    border: none;
+    font-size: 0.75rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+}
+
+.history-btn:hover {
+    color: #111827;
+    text-decoration: underline;
+}

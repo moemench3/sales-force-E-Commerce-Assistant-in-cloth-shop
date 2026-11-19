@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Calculates expected product price from current vs AI ingredient weights at latest unit prices.</description>
+    <genAiPlugins>
+        <genAiPluginName>agent_router_16jg50000010Ca5</genAiPluginName>
+    </genAiPlugins>
+    <genAiPlugins>
+        <genAiPluginName>project_prices_16jg50000010Ca5</genAiPluginName>
+    </genAiPlugins>
+    <masterLabel>Recipe Price Projection AI</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>

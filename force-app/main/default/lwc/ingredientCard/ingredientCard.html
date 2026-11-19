@@ -1,0 +1,19 @@
+<template>
+    <div class="card">
+        <div class="card-header">
+            <span class="ingredient-name">{name}</span>
+            <span class={badgeClass}>
+                {arrowIcon} {change}
+            </span>
+        </div>
+
+        <div class="price-tag">{price}</div>
+
+        <p class="comment-text">{comment}</p>
+
+        <div class="card-footer">
+            <a href={sourceUrl} class="source-link" target="_blank" rel="noopener">{sourceLabel}</a>
+            <button class="history-btn" type="button">History</button>
+        </div>
+    </div>
+</template>
